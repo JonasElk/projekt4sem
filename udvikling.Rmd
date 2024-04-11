@@ -23,7 +23,50 @@ options(scipen = 999)
 rm(list=ls())
 ```
 
+```{r}
+data = read_xlsx("data/data.xlsx")
+ps = ts(data$ps, start = 1960, frequency = 1)
+```
+
+
 Udvikling i profitandel
+```{r}
+plot(ps)
+
+ggplot(data = data, aes(x = year, y = ps)) +
+  geom_line(color = "red") +
+  geom_point(size=0.8) +
+  geom_smooth(method = lm, se = F, linewidth = 0.5, fullrange = T) +
+  scale_x_continuous(limits = c(1950,2025), breaks = seq(from = 1960, to = 2022, by = 2)) +
+  scale_y_continuous(breaks = seq(from = 28, to = 42, by = 2)) +
+  xlab("År") +
+  ylab("Profitandel") +
+  coord_cartesian(xlim=c(1960,2022)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("Udvikling i profitandel.png", dpi=500, width = 8, path = "grafer")
+```
+
 
 
 Udvikling i BNP-vækst
+```{r}
+data = data %>%
+  mutate(Ygr = c(NA, exp(diff(log(Y)))-1)*100)
+
+
+ggplot(data = data, aes(x = year, y = Ygr)) +
+  geom_line(color = "red") + 
+  geom_point(size = 0.8) +
+  geom_smooth(method = lm, se = F, linewidth = 0.5, fullrange = T) +
+  geom_hline(yintercept = 0, linewidth = 0.5) +
+  scale_x_continuous(limits = c(1950,2025), breaks = seq(from = 1960, to = 2022, by = 2)) +
+  scale_y_continuous(breaks = seq(from = -5, to = 10, by = 2)) +
+  xlab("År") +
+  ylab("BNP vækst i %") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_cartesian(xlim=c(1960,2022), ylim=c(-5,10))
+
+ggsave("Udvikling i BNP.png", dpi=500, width = 8, path = "grafer")
+```
+
