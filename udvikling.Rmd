@@ -1,0 +1,29 @@
+---
+title: "Udvikling"
+output: pdf_document
+date: "2024-04-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+library(tinytex)
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
+library(zoo)
+library(stringr)
+library(ggrepel)
+library(pander)
+library(broom)
+options(digits = 8)
+options(scipen = 999)
+rm(list=ls())
+```
+
+Udvikling i profitandel
+
+
+Udvikling i BNP-vækst
