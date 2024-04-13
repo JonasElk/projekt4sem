@@ -31,20 +31,21 @@ ps = ts(data$ps, start = 1960, frequency = 1)
 
 Udvikling i profitandel
 ```{r}
-plot(ps)
-
 ggplot(data = data, aes(x = year, y = ps)) +
-  geom_line(color = "red") +
+  geom_line(color = "brown") +
   geom_point(size=0.8) +
-  geom_smooth(method = lm, se = F, linewidth = 0.5, fullrange = T) +
-  scale_x_continuous(limits = c(1950,2025), breaks = seq(from = 1960, to = 2022, by = 2)) +
+  geom_smooth(method = lm, se = F, linewidth = 0.4, fullrange = T) +
+  scale_x_continuous(limits = c(1950,2030), breaks = seq(from = 1960, to = 2022, by = 2)) +
   scale_y_continuous(breaks = seq(from = 28, to = 42, by = 2)) +
   xlab("År") +
-  ylab("Profitandel") +
-  coord_cartesian(xlim=c(1960,2022)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  ylab("Profitandel i %") +
+  coord_cartesian(xlim=c(1961,2021)) +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        text = element_text(size = 12),
+        panel.grid.minor.x = element_blank())
 
-ggsave("Udvikling i profitandel.png", dpi=500, width = 8, path = "grafer")
+ggsave("Udvikling i profitandel.png", dpi=600, width = 8, height = 4, path = "grafer")
 ```
 
 
@@ -55,18 +56,21 @@ data = data %>%
   mutate(Ygr = c(NA, exp(diff(log(Y)))-1)*100)
 
 
-ggplot(data = data, aes(x = year, y = Ygr)) +
-  geom_line(color = "red") + 
+ggplot(data = data[-1, ], aes(x = year, y = Ygr)) +
+  geom_line(color = "brown") + 
   geom_point(size = 0.8) +
-  geom_smooth(method = lm, se = F, linewidth = 0.5, fullrange = T) +
+  geom_smooth(method = lm, se = F, linewidth = 0.4, fullrange = T) +
   geom_hline(yintercept = 0, linewidth = 0.5) +
-  scale_x_continuous(limits = c(1950,2025), breaks = seq(from = 1960, to = 2022, by = 2)) +
+  scale_x_continuous(limits = c(1950,2030), breaks = seq(from = 1960, to = 2022, by = 2)) +
   scale_y_continuous(breaks = seq(from = -5, to = 10, by = 2)) +
   xlab("År") +
   ylab("BNP vækst i %") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  coord_cartesian(xlim=c(1960,2022), ylim=c(-5,10))
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        text = element_text(size = 12), 
+        panel.grid.minor.x = element_blank()) +
+  coord_cartesian(xlim=c(1961,2021), ylim=c(-5,10))
 
-ggsave("Udvikling i BNP.png", dpi=500, width = 8, path = "grafer")
+ggsave("Udvikling i BNP.png", dpi=600, width = 8, height = 4, path = "grafer")
 ```
 
