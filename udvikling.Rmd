@@ -73,4 +73,3 @@ ggplot(data = data[-1, ], aes(x = year, y = Ygr)) +
 
 ggsave("Udvikling i BNP.png", dpi=600, width = 8, height = 4, path = "grafer")
 ```
-
