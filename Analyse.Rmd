@@ -1,0 +1,34 @@
+---
+title: "Analyse"
+author: "Jonas Elkjær"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+library(tinytex)
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
+library(zoo)
+library(stringr)
+library(ggrepel)
+library(pander)
+library(broom)
+options(digits = 8)
+options(scipen = 999)
+rm(list=ls())
+```
+
+```{r}
+data = read_xlsx("data/data.xlsx")
+```
+
+```{r}
+
+```
+
