@@ -29,6 +29,8 @@ data = read_xlsx("data/data.xlsx")
 ```
 
 ```{r}
+forbrug = data$c
 
+model1 = 
 ```
 
