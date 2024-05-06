@@ -26,11 +26,40 @@ rm(list=ls())
 
 ```{r}
 data = read_xlsx("data/data.xlsx")
+data = data[-c(1:11),]
+data = data[-c(42:52),]
 ```
 
 ```{r}
-forbrug = data$c
+forbrug = log(data$c)
+forb.y = data$`C/Y`
+inv = log(data$Ipr_faste)
+ps = log(data$ps)
+løn = log(data$W)
+profit = log(data$R)
+rente = log(data$r)
+output = log(data$Y)
+```
 
-model1 = 
+
+#Forbrug
+```{r}
+model1 = lm(forbrug ~ profit + løn + lag(forbrug) + lag(profit) + lag(løn))
+summary(model1)
+model1$coefficients
+
+effekt_forbrug = model1$coefficients[2]*mean(forbrug/profit)-model1$coefficients[3]*mean(forbrug/løn)
+
+as.numeric(effekt_forbrug)
+```
+
+#Investeringer
+```{r}
+model2 = lm(inv ~ output+ps+rente)
+summary(model2)
+
+inv/profit
+effekt_inv = model2$coefficients[3]*mean(inv/profit)
+effekt_inv
 ```
 
