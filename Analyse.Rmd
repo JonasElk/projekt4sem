@@ -19,6 +19,8 @@ library(stringr)
 library(ggrepel)
 library(pander)
 library(broom)
+library(dynlm)
+library(lmtest)
 options(digits = 8)
 options(scipen = 999)
 rm(list=ls())
@@ -27,28 +29,41 @@ rm(list=ls())
 ```{r}
 data = read_xlsx("data/data.xlsx")
 data = data[-c(1:11),]
-data = data[-c(42:52),]
+data = data[-c(50:52),]
 ```
 
 ```{r}
 forbrug = log(data$c)
-forb.y = data$`C/Y`
 inv = log(data$Ipr_faste)
 ps = log(data$ps)
 løn = log(data$W)
 profit = log(data$R)
-rente = log(data$r)
+rente = log(data$r+1.21)
 output = log(data$Y)
+```
+
+```{r}
+forbrug1 = ts(forbrug, start = 1971, frequency = 1)
+profit1 = ts(profit, start = 1971, frequency = 1)
+løn1 = ts(løn, start = 1971, frequency = 1)
+
+dfm = dynlm(d(forbrug1) ~ d(profit1) + d(løn1) + L(forbrug1))
+summary(dfm)
 ```
 
 
 #Forbrug
 ```{r}
+#model1a = lm(diff(forbrug) ~ diff(profit) + diff(løn) + lag(forbrug)[-49] + lag(profit)[-49] + lag(løn)[-49])
+#summary(model1a)
+
 model1 = lm(forbrug ~ profit + løn + lag(forbrug) + lag(profit) + lag(løn))
 summary(model1)
 model1$coefficients
 
-effekt_forbrug = model1$coefficients[2]*mean(forbrug/profit)-model1$coefficients[3]*mean(forbrug/løn)
+#effekt_forbrug = model1$coefficients[2]*mean(forbrug/profit)-model1$coefficients[6]*mean(forbrug/løn)
+effekt_forbrug = 0.253452      *mean(forbrug/profit)-0.132752      *mean(forbrug/løn)
+
 
 as.numeric(effekt_forbrug)
 ```
