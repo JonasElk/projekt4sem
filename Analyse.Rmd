@@ -33,54 +33,53 @@ data = data[-c(1:11),]
 ```
 
 ```{r}
-forbrug = log(data$c)
+C = ts(log(data$c), start = 1971, frequency = 1)
 inv = ts(log(data$Ipr_faste), start = 1971, frequency = 1)
 ps = ts(log(data$ps), start = 1971, frequency = 1)
-løn = log(data$W)
-profit = log(data$R)
-rente = ts(log(data$r+1.21), start = 1971, frequency = 1)
-output = ts(log(data$Y), start = 1971, frequency = 1)
+W = ts(log(data$W), start = 1971, frequency = 1)
+R = ts(log(data$R), start = 1971, frequency = 1)
+
+#OBS på NaNs ved r pga negative værdier - Muligvis plus rente med 7 for at undgå? ændrer det noget?
+r = ts(log(data$r+1.21), start = 1971, frequency = 1)
+
+Y = ts(log(data$Y), start = 1971, frequency = 1)
 ```
 
-#Forbrugt - Rigtig
+#Ct - Rigtig
 ```{r}
-forbrug1 = ts(forbrug, start = 1971, frequency = 1)
-profit1 = ts(profit, start = 1971, frequency = 1)
-løn1 = ts(løn, start = 1971, frequency = 1)
-
-dfm = dynlm(d(forbrug1) ~ d(profit1) + d(løn1) + L(forbrug1))
+#Bjarke med alle variable
+dfm = dynlm(d(C) ~ d(R) + d(W) + L(C))
 summary(dfm)
 
-0.2450572*mean(forbrug/profit)-0.6984676*mean(forbrug/løn)
-```
-
-
-#Forbrug - FORKERT, tror jeg?
-```{r}
-#model1a = lm(diff(forbrug) ~ diff(profit) + diff(løn) + lag(forbrug)[-49] + lag(profit)[-49] + lag(løn)[-49])
-#summary(model1a)
-
-model1 = lm(forbrug ~ profit + løn + lag(forbrug) + lag(profit) + lag(løn))
-summary(model1)
-model1$coefficients
-
-effekt_forbrug = model1$coefficients[2]*mean(forbrug/profit)-model1$coefficients[3]*mean(forbrug/løn)
-
-
-as.numeric(effekt_forbrug)
+dfm$coefficients
+dfm$coefficients[2]*mean(C/R)-dfm$coefficients[3]*mean(C/W)
 ```
 
 #Investeringer - skal rettes
 ```{r}
-dfm1 = dynlm(d(inv) ~ d(ps) + L(ps) + L(output) + rente + d(output) + L(d(rente), 2) + d(rente))
-
+#Bjarke med alle variable - decent?
+dfm1 = dynlm(d(inv) ~ d(ps) + ps + Y + d(Y) + r  + L(d(r), 2) + d(r))
 summary(dfm1)
 
-effekt_inv = 0.3272084*mean(inv/profit)
-effekt_inv
-```
+#Bjarke med signifikante variable / højest adj r2 - Decent? eller bs
+dfm2 = dynlm(d(inv) ~ d(ps) + ps + d(Y) + d(r) + L(d(r), 1))
+summary(dfm2)
 
-```{r}
--0.60908388+0.29273742
-```
+#Onaran og obst med signifikante variable - bs
+dfm3 = dynlm(d(inv) ~ L(d(ps)) + d(ps) + d(Y) + L(d(r)))
+summary(dfm3)
 
+#1:1 Bjarke med deres signifikante - kinda bs, ingen signifikans for ps
+dfm4 = dynlm(d(inv) ~ ps + Y + d(Y))
+summary(dfm4)
+
+#Troels med alle variable - dårlig, forvirrende, 3 gange ps
+dfm5 = dynlm(d(inv) ~ d(ps) + L(d(ps)) + d(Y) + L(d(r)) + L(d(inv)) + L(ps) + L(Y) + L(inv))
+summary(dfm5)
+
+#Troels med signifikante variable - God? god signifikans på PS, og ikke urealistisk resultat
+dfm6 = dynlm(d(inv) ~ d(Y) + L(d(r)) + L(ps) + L(inv))
+summary(dfm6)
+
+0.4312830*mean(inv/R)
+```
