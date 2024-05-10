@@ -45,7 +45,7 @@ r = ts(log(data$r+1.21), start = 1971, frequency = 1)
 Y = ts(log(data$Y), start = 1971, frequency = 1)
 ```
 
-#Ct - Rigtig
+#Forbrug - Rigtig
 ```{r}
 #Bjarke med alle variable
 dfm = dynlm(d(C) ~ d(R) + d(W) + L(C))
