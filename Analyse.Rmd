@@ -21,6 +21,7 @@ library(pander)
 library(broom)
 library(dynlm)
 library(lmtest)
+library(stargazer)
 options(digits = 8)
 options(scipen = 999)
 rm(list=ls())
@@ -34,10 +35,20 @@ data = data[-c(1:11),]
 
 ```{r}
 C = ts(log(data$c), start = 1971, frequency = 1)
-inv = ts(log(data$Ipr_faste), start = 1971, frequency = 1)
+I = ts(log(data$Ipr_faste), start = 1971, frequency = 1)
 ps = ts(log(data$ps), start = 1971, frequency = 1)
 W = ts(log(data$W), start = 1971, frequency = 1)
 R = ts(log(data$R), start = 1971, frequency = 1)
+ulc = ts(log(data$ulc), start = 1971, frequency = 1)
+Pm = ts(log(data$Pm), start = 1971, frequency = 1)
+Px = ts(log(data$Px), start = 1971, frequency = 1)
+X = ts(log(data$X), start = 1971, frequency = 1)
+Yrw = ts(log(data$Yrw_dk), start = 1971, frequency = 1)
+M = ts(log(data$M), start = 1971, frequency = 1)
+rulc = ts(log(data$rulc), start = 1971, frequency = 1)
+E = ts(log(data$E), start = 1971, frequency = 1)
+P = ts(log(data$P), start = 1971, frequency = 1)
+Yf = ts(log(data$Yff), start = 1971, frequency = 1)
 
 #OBS på NaNs ved r pga negative værdier - Muligvis plus rente med 7 for at undgå? ændrer det noget?
 r = ts(log(data$r+1.21), start = 1971, frequency = 1)
@@ -48,38 +59,88 @@ Y = ts(log(data$Y), start = 1971, frequency = 1)
 #Forbrug - Rigtig
 ```{r}
 #Bjarke med alle variable
-dfm = dynlm(d(C) ~ d(R) + d(W) + L(C))
+dfm = dynlm(d(C) ~ d(R) + d(W))
 summary(dfm)
 
 dfm$coefficients
-dfm$coefficients[2]*mean(C/R)-dfm$coefficients[3]*mean(C/W)
+as.numeric(dfm$coefficients[2]*mean(C/R)-dfm$coefficients[3]*mean(C/W))
 ```
 
 #Investeringer - skal rettes
 ```{r}
 #Bjarke med alle variable - decent?
-dfm1 = dynlm(d(inv) ~ d(ps) + ps + Y + d(Y) + r  + L(d(r), 2) + d(r))
+dfm1 = dynlm(d(I) ~ d(ps) + ps + Y + d(Y) + r  + L(d(r), 2) + d(r))
 summary(dfm1)
 
 #Bjarke med signifikante variable / højest adj r2 - Decent? eller bs
-dfm2 = dynlm(d(inv) ~ d(ps) + ps + d(Y) + d(r) + L(d(r), 1))
+dfm2 = dynlm(d(I) ~ d(ps) + ps + d(Y) + d(r) + L(d(r), 1))
 summary(dfm2)
 
 #Onaran og obst med signifikante variable - bs
-dfm3 = dynlm(d(inv) ~ L(d(ps)) + d(ps) + d(Y) + L(d(r)))
+dfm3 = dynlm(d(I) ~ L(d(ps)) + d(ps) + d(Y) + L(d(r)))
 summary(dfm3)
 
 #1:1 Bjarke med deres signifikante - kinda bs, ingen signifikans for ps
-dfm4 = dynlm(d(inv) ~ ps + Y + d(Y))
+dfm4 = dynlm(d(I) ~ ps + Y + d(Y))
 summary(dfm4)
 
 #Troels med alle variable - dårlig, forvirrende, 3 gange ps
-dfm5 = dynlm(d(inv) ~ d(ps) + L(d(ps)) + d(Y) + L(d(r)) + L(d(inv)) + L(ps) + L(Y) + L(inv))
+dfm5 = dynlm(d(I) ~ d(ps) + L(d(ps)) + d(Y) + L(d(r)) + L(d(I)) + L(ps) + L(Y) + L(I))
 summary(dfm5)
 
 #Troels med signifikante variable - God? god signifikans på PS, og ikke urealistisk resultat
-dfm6 = dynlm(d(inv) ~ d(Y) + L(d(r)) + L(ps) + L(inv))
+dfm6 = dynlm(d(I) ~ d(Y) + L(d(r)) + L(ps) + L(I))
 summary(dfm6)
 
-0.4312830*mean(inv/R)
+#Svar fra Mikael
+dfm7 = dynlm(d(I) ~ d(ps) + d(Y) + d(r))
+summary(dfm7)
+
+#Onaran og obst med deres signifikante
+dfm8 = dynlm(d(I) ~ L(d(ps)) + d(Y) + L(d(r)))
+summary(dfm8)
+
+
+0.4622468*mean(I/R)
 ```
+```{r results='asis'}
+stargazer(dfm7, omit.stat = c("f", "ser"))
+```
+
+
+
+
+#Nettoeksport
+```{r}
+#Prisdeflator regression
+dfmP = dynlm(d(P) ~ d(ulc) + d(Pm))
+summary(dfmP)
+eP = as.numeric(dfmP$coefficients[2])
+
+#Eksportprisdeflator regression - Ingen signifikans af ULC, mærkeligt
+dfmPx = dynlm(d(Px) ~ d(ulc) + d(Pm))
+summary(dfmPx)
+ePX = as.numeric(dfmPx$coefficients[2])
+
+#Eksportregression
+dfmX = dynlm(d(X) ~ d(log(data$Px/data$Pm)) + d(Yrw) + d(E))
+summary(dfmX)
+dfmX$coefficients
+eXP = as.numeric(dfmX$coefficients[2])
+
+#Importregression - Log(P/Pm) er ikke signifikant
+dfmM = dynlm(d(M) ~ d(log(data$P/data$Pm)) + d(Y) + d(E))
+summary(dfmM)
+dfmM$coefficients
+eMP = 0
+```
+
+##Marginale effekter
+```{r}
+#Marginal effekt af eksport
+-(eXP*ePX*(1/(1-eP))*mean(Yf/Y))*(mean(X/Y)/mean(rulc))
+
+#Marginal effekt på import
+-(eMP*eP*(1/(1-eP))*mean(Yf/Y))*(mean(X/Y)/mean(rulc))
+```
+
