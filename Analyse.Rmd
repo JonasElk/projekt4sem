@@ -48,12 +48,11 @@ M = ts(log(data$M), start = 1971, frequency = 1)
 rulc = ts(log(data$rulc), start = 1971, frequency = 1)
 E = ts(log(data$E), start = 1971, frequency = 1)
 P = ts(log(data$P), start = 1971, frequency = 1)
+Y = ts(log(data$Y), start = 1971, frequency = 1)
 Yf = ts(log(data$Yff), start = 1971, frequency = 1)
 
 #OBS på NaNs ved r pga negative værdier - Muligvis plus rente med 7 for at undgå? ændrer det noget?
 r = ts(log(data$r+1.21), start = 1971, frequency = 1)
-
-Y = ts(log(data$Y), start = 1971, frequency = 1)
 ```
 
 #Forbrug - Rigtig
@@ -101,7 +100,7 @@ dfm8 = dynlm(d(I) ~ L(d(ps)) + d(Y) + L(d(r)))
 summary(dfm8)
 
 
-0.4622468*mean(I/R)
+1.084270*mean(I/R)
 ```
 ```{r results='asis'}
 stargazer(dfm7, omit.stat = c("f", "ser"))
