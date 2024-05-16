@@ -1,11 +1,11 @@
 ---
 title: "Analyse"
-author: "Jonas Elkjær"
+author: "Jonas E_llkjær"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE_l}
 knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
 library(tidyverse)
@@ -22,6 +22,9 @@ library(broom)
 library(dynlm)
 library(lmtest)
 library(stargazer)
+library(AER)
+library(sandwich)
+library(texreg)
 options(digits = 8)
 options(scipen = 999)
 rm(list=ls())
@@ -34,74 +37,50 @@ data = data[-c(1:11),]
 ```
 
 ```{r}
-C = ts(log(data$c), start = 1971, frequency = 1)
-I = ts(log(data$Ipr_faste), start = 1971, frequency = 1)
-ps = ts(log(data$ps), start = 1971, frequency = 1)
-W = ts(log(data$W), start = 1971, frequency = 1)
-R = ts(log(data$R), start = 1971, frequency = 1)
-ulc = ts(log(data$ulc), start = 1971, frequency = 1)
-Pm = ts(log(data$Pm), start = 1971, frequency = 1)
-Px = ts(log(data$Px), start = 1971, frequency = 1)
-X = ts(log(data$X), start = 1971, frequency = 1)
-Yrw = ts(log(data$Yrw_dk), start = 1971, frequency = 1)
-M = ts(log(data$M), start = 1971, frequency = 1)
-rulc = ts(log(data$rulc), start = 1971, frequency = 1)
-E = ts(log(data$E), start = 1971, frequency = 1)
-P = ts(log(data$P), start = 1971, frequency = 1)
-Y = ts(log(data$Y), start = 1971, frequency = 1)
-Yf = ts(log(data$Yff), start = 1971, frequency = 1)
+C_l = ts(log(data$c), start = 1971, frequency = 1)
+I_l = ts(log(data$Ipr_faste), start = 1971, frequency = 1)
+ps = ts(data$ps/100, start = 1971, frequency = 1)
+W_l = ts(log(data$W), start = 1971, frequency = 1)
+R_l = ts(log(data$R), start = 1971, frequency = 1)
+ulc_l = ts(log(data$ulc), start = 1971, frequency = 1)
+Pm_l = ts(log(data$Pm), start = 1971, frequency = 1)
+Px_l = ts(log(data$Px), start = 1971, frequency = 1)
+X_l = ts(log(data$X), start = 1971, frequency = 1)
+Yrw_l = ts(log(data$Yrw_dk), start = 1971, frequency = 1)
+M_l = ts(log(data$M), start = 1971, frequency = 1)
+rulc_l = ts(log(data$rulc), start = 1971, frequency = 1)
+E_l = ts(log(data$E), start = 1971, frequency = 1)
+P_l = ts(log(data$P), start = 1971, frequency = 1)
+Y_l = ts(log(data$Y), start = 1971, frequency = 1)
+Yf_l = ts(log(data$Yff), start = 1971, frequency = 1)
 
-#OBS på NaNs ved r pga negative værdier - Muligvis plus rente med 7 for at undgå? ændrer det noget?
-r = ts(log(data$r), start = 1971, frequency = 1)
+#OBS på NaNs ved r pga negative værdier - M_luligvis plus rente med 7 for at undgå? ændrer det noget?
+r = ts(data$r, start = 1971, frequency = 1)
 ```
 
 #Forbrug - Rigtig
 ```{r}
 #Bjarke med alle variable
-dfm = dynlm(d(C) ~ d(R) + d(W))
+dfm = dynlm(d(C_l) ~ d(R_l) + d(W_l))
 summary(dfm)
 
 dfm$coefficients
-as.numeric(dfm$coefficients[2]*mean(C/R)-dfm$coefficients[3]*mean(C/W))
+as.numeric(dfm$coefficients[2]*mean(C_l/R_l)-dfm$coefficients[3]*mean(C_l/W_l))
+```
+
+```{r results='asis'}
+stargazer(dfm, omit.stat = c("f", "ser"))
 ```
 
 #Investeringer - skal rettes
 ```{r}
-#Bjarke med alle variable - decent?
-dfm1 = dynlm(d(I) ~ d(ps) + ps + Y + d(Y) + r  + L(d(r), 2) + d(r))
-summary(dfm1)
-
-#Bjarke med signifikante variable / højest adj r2 - Decent? eller bs
-dfm2 = dynlm(d(I) ~ d(ps) + ps + d(Y) + d(r) + L(d(r), 1))
-summary(dfm2)
-
-#Onaran og obst med signifikante variable - bs
-dfm3 = dynlm(d(I) ~ L(d(ps)) + d(ps) + d(Y) + L(d(r)))
-summary(dfm3)
-
-#1:1 Bjarke med deres signifikante - kinda bs, ingen signifikans for ps
-dfm4 = dynlm(d(I) ~ ps + Y + d(Y))
-summary(dfm4)
-
-#Troels med alle variable - dårlig, forvirrende, 3 gange ps
-dfm5 = dynlm(d(I) ~ d(ps) + L(d(ps)) + d(Y) + L(d(r)) + L(d(I)) + L(ps) + L(Y) + L(I))
-summary(dfm5)
-
-#Troels med signifikante variable - God? god signifikans på PS, og ikke urealistisk resultat
-dfm6 = dynlm(d(I) ~ d(Y) + L(d(r)) + L(d(ps)) + L(I))
-summary(dfm6)
-
 #Svar fra Mikael
-dfm7 = dynlm(d(I) ~ d(ps) + d(Y) + d(r))
+dfm7 = dynlm(d(I_l) ~ ps + d(Y_l) + d(r))
 summary(dfm7)
 
-#Onaran og obst med deres signifikante
-dfm8 = dynlm(d(I) ~ L(d(ps)) + d(Y) + L(d(r)))
-summary(dfm8)
-
-
-1.084270*mean(I/R)
+as.numeric(dfm7$coefficients[2]*mean(I_l/R_l))
 ```
+
 ```{r results='asis'}
 stargazer(dfm7, omit.stat = c("f", "ser"))
 ```
@@ -112,34 +91,37 @@ stargazer(dfm7, omit.stat = c("f", "ser"))
 #Nettoeksport
 ```{r}
 #Prisdeflator regression
-dfmP = dynlm(d(P) ~ d(ulc) + d(Pm))
-summary(dfmP)
-eP = as.numeric(dfmP$coefficients[2])
+dfmP_l = dynlm(d(P_l) ~ d(ulc_l) + d(Pm_l))
+summary(dfmP_l)
+eP_l = as.numeric(dfmP_l$coefficients[2])
 
-#Eksportprisdeflator regression - Ingen signifikans af ULC, mærkeligt
-dfmPx = dynlm(d(Px) ~ d(ulc) + d(Pm))
+#Eksportprisdeflator regression - Ingen signifikans af ULC, mærkeligt - fuck
+dfmPx = dynlm(d(Px_l) ~ d(ulc_l) + d(Pm_l))
 summary(dfmPx)
+dfmPx_robust <- coeftest(dfmPx, vcov = vcovHC(dfmPx, type = "HC0"))
+screenreg(list(OLS = dfmPx, OLS_robust_se = dfmPx_robust), digits = 4)
+
 ePX = as.numeric(dfmPx$coefficients[2])
 
 #Eksportregression
-dfmX = dynlm(d(X) ~ d(log(data$Px/data$Pm)) + d(Yrw) + d(E))
+dfmX = dynlm(d(X_l) ~ d(log(data$Px/data$Pm)) + d(Yrw_l) + d(E_l))
 summary(dfmX)
 dfmX$coefficients
 eXP = as.numeric(dfmX$coefficients[2])
 
 #Importregression - Log(P/Pm) er ikke signifikant
-dfmM = dynlm(d(M) ~ d(log(data$P/data$Pm)) + d(Y) + d(E))
+dfmM = dynlm(d(M_l) ~ d(log(data$P/data$Pm)) + d(Y_l) + d(E_l))
 summary(dfmM)
 dfmM$coefficients
 eMP = 0
 ```
 
-##Marginale effekter
+##M_larginale effekter
 ```{r}
-#Marginal effekt af eksport
--(eXP*ePX*(1/(1-eP))*mean(Yf/Y))*(mean(X/Y)/mean(rulc))
+#M_larginal effekt af eksport
+-(eX_lP_l*eP_lX_l*(1/(1-eP_l))*mean(Yf_l/Y_l))*(mean(X_l/Y_l)/mean(rulc_l))
 
-#Marginal effekt på import
--(eMP*eP*(1/(1-eP))*mean(Yf/Y))*(mean(X/Y)/mean(rulc))
+#M_larginal effekt på import
+-(eM_lP_l*eP_l*(1/(1-eP_l))*mean(Yf_l/Y_l))*(mean(X_l/Y_l)/mean(rulc_l))
 ```
 
