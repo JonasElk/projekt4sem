@@ -52,7 +52,7 @@ Y = ts(log(data$Y), start = 1971, frequency = 1)
 Yf = ts(log(data$Yff), start = 1971, frequency = 1)
 
 #OBS på NaNs ved r pga negative værdier - Muligvis plus rente med 7 for at undgå? ændrer det noget?
-r = ts(log(data$r+1.21), start = 1971, frequency = 1)
+r = ts(log(data$r), start = 1971, frequency = 1)
 ```
 
 #Forbrug - Rigtig
@@ -88,7 +88,7 @@ dfm5 = dynlm(d(I) ~ d(ps) + L(d(ps)) + d(Y) + L(d(r)) + L(d(I)) + L(ps) + L(Y) +
 summary(dfm5)
 
 #Troels med signifikante variable - God? god signifikans på PS, og ikke urealistisk resultat
-dfm6 = dynlm(d(I) ~ d(Y) + L(d(r)) + L(ps) + L(I))
+dfm6 = dynlm(d(I) ~ d(Y) + L(d(r)) + L(d(ps)) + L(I))
 summary(dfm6)
 
 #Svar fra Mikael
