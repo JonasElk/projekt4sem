@@ -78,6 +78,10 @@ stargazer(dfm, omit.stat = c("f", "ser"))
 dfm7 = dynlm(d(I_l) ~ ps + d(Y_l) + d(r))
 summary(dfm7)
 
+#Anden mulighed med lagged PS
+dfm8 = dynlm(d(I_l) ~ L(ps) + d(Y_l) + d(r))
+summary(dfm8)
+
 as.numeric(dfm7$coefficients[2]*mean(I_l/R_l))
 ```
 
