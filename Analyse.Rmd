@@ -53,8 +53,6 @@ E_l = ts(log(data$E), start = 1971, frequency = 1)
 P_l = ts(log(data$P), start = 1971, frequency = 1)
 Y_l = ts(log(data$Y), start = 1971, frequency = 1)
 Yf_l = ts(log(data$Yff), start = 1971, frequency = 1)
-
-#OBS på NaNs ved r pga negative værdier - M_luligvis plus rente med 7 for at undgå? ændrer det noget?
 r = ts(data$r, start = 1971, frequency = 1)
 ```
 
@@ -63,6 +61,9 @@ r = ts(data$r, start = 1971, frequency = 1)
 #Bjarke med alle variable
 dfm = dynlm(d(C_l) ~ d(R_l) + d(W_l))
 summary(dfm)
+
+dfm1 = dynlm(d(C_l) ~ d(R_l) + d(W_l) + lead(d(W_l)))
+summary(dfm1)
 
 dfm$coefficients
 as.numeric(dfm$coefficients[2]*mean(C_l/R_l)-dfm$coefficients[3]*mean(C_l/W_l))
@@ -83,10 +84,11 @@ dfm8 = dynlm(d(I_l) ~ L(ps) + d(Y_l) + d(r))
 summary(dfm8)
 
 as.numeric(dfm7$coefficients[2]*mean(I_l/R_l))
+as.numeric(dfm8$coefficients[2]*mean(I_l/R_l))
 ```
 
 ```{r results='asis'}
-stargazer(dfm7, omit.stat = c("f", "ser"))
+stargazer(dfm7, dfm8, omit.stat = c("f", "ser"))
 ```
 
 
@@ -95,12 +97,12 @@ stargazer(dfm7, omit.stat = c("f", "ser"))
 #Nettoeksport
 ```{r}
 #Prisdeflator regression
-dfmP_l = dynlm(d(P_l) ~ d(ulc_l) + d(Pm_l))
-summary(dfmP_l)
-eP_l = as.numeric(dfmP_l$coefficients[2])
+dfmP = dynlm(d(P_l) ~ d(ulc_l) + d(Pm_l) + d(Y_l) + d(r))
+summary(dfmP)
+eP = as.numeric(dfmP$coefficients[2])
 
-#Eksportprisdeflator regression - Ingen signifikans af ULC, mærkeligt - fuck
-dfmPx = dynlm(d(Px_l) ~ d(ulc_l) + d(Pm_l))
+#Eksportprisdeflator regression - ULC kun signifikant med d(Y) eller r som kontrolvariable
+dfmPx = dynlm(d(Px_l) ~ d(ulc_l) + d(Pm_l) + d(Y_l) + d(r))
 summary(dfmPx)
 dfmPx_robust <- coeftest(dfmPx, vcov = vcovHC(dfmPx, type = "HC0"))
 screenreg(list(OLS = dfmPx, OLS_robust_se = dfmPx_robust), digits = 4)
@@ -110,22 +112,25 @@ ePX = as.numeric(dfmPx$coefficients[2])
 #Eksportregression
 dfmX = dynlm(d(X_l) ~ d(log(data$Px/data$Pm)) + d(Yrw_l) + d(E_l))
 summary(dfmX)
-dfmX$coefficients
 eXP = as.numeric(dfmX$coefficients[2])
 
 #Importregression - Log(P/Pm) er ikke signifikant
 dfmM = dynlm(d(M_l) ~ d(log(data$P/data$Pm)) + d(Y_l) + d(E_l))
 summary(dfmM)
-dfmM$coefficients
 eMP = 0
 ```
 
-##M_larginale effekter
 ```{r}
-#M_larginal effekt af eksport
--(eX_lP_l*eP_lX_l*(1/(1-eP_l))*mean(Yf_l/Y_l))*(mean(X_l/Y_l)/mean(rulc_l))
+stargazer(dfmPx, omit.stat = c("f", "ser"))
+```
 
-#M_larginal effekt på import
--(eM_lP_l*eP_l*(1/(1-eP_l))*mean(Yf_l/Y_l))*(mean(X_l/Y_l)/mean(rulc_l))
+
+##Marginale effekter
+```{r}
+#Marginal effekt af eksport
+-(eXP*ePX*(1/(1-eP))*mean(Yf_l/Y_l))*(mean(X_l/Y_l)/mean(rulc_l))
+
+#Marginal effekt på import
+-(eMP*eP*(1/(1-eP))*mean(Yf_l/Y_l))*(mean(X_l/Y_l)/mean(rulc_l))
 ```
 
