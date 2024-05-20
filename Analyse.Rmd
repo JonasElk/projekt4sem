@@ -1,11 +1,11 @@
 ---
 title: "Analyse"
-author: "Jonas E_llkjær"
+author: "Jonas Elkjær"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE_l}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
 library(tidyverse)
@@ -101,7 +101,7 @@ dfmP = dynlm(d(P_l) ~ d(ulc_l) + d(Pm_l) + d(Y_l) + d(r))
 summary(dfmP)
 eP = as.numeric(dfmP$coefficients[2])
 
-#Eksportprisdeflator regression - ULC kun signifikant med d(Y) eller r som kontrolvariable
+#Eksportprisdeflator regression - ULC kun signifikant med d(Y) og/eller r som kontrolvariable
 dfmPx = dynlm(d(Px_l) ~ d(ulc_l) + d(Pm_l) + d(Y_l) + d(r))
 summary(dfmPx)
 dfmPx_robust <- coeftest(dfmPx, vcov = vcovHC(dfmPx, type = "HC0"))
