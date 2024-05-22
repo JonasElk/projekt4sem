@@ -25,6 +25,7 @@ library(stargazer)
 library(AER)
 library(sandwich)
 library(texreg)
+library(tseries)
 options(digits = 8)
 options(scipen = 999)
 rm(list=ls())
@@ -82,6 +83,7 @@ summary(dfm7)
 #Anden mulighed med lagged PS
 dfm8 = dynlm(d(I_l) ~ L(ps) + d(Y_l) + d(r))
 summary(dfm8)
+
 
 as.numeric(dfm7$coefficients[2]*mean(I_l/R_l))
 as.numeric(dfm8$coefficients[2]*mean(I_l/R_l))
