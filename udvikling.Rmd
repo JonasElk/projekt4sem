@@ -25,7 +25,6 @@ rm(list=ls())
 
 ```{r}
 data = read_xlsx("data/data.xlsx")
-ps = ts(data$ps, start = 1960, frequency = 1)
 ```
 
 
@@ -73,3 +72,77 @@ ggplot(data = data[-1, ], aes(x = year, y = Ygr)) +
 
 ggsave("Udvikling i BNP.png", dpi=600, width = 8, height = 4, path = "grafer")
 ```
+
+Udvikling i NX
+```{r}
+min(data[-c(1:7), ]$X-data[-c(1:7), ]$M)
+ggplot(data = data[-c(1:7), ], aes(x = year, y = X-M)) +
+  geom_line(color = "brown") + 
+  geom_point(size = 0.8) +
+  geom_smooth(method = lm, se = F, linewidth = 0.4, fullrange = T) +
+  geom_hline(yintercept = 0, linewidth = 0.5) +
+  scale_x_continuous(limits = c(1950,2030), breaks = seq(from = 1960, to = 2022, by = 2)) +
+  scale_y_continuous(breaks = seq(from = 0, to = 200, by = 20)) +
+  xlab("År") +
+  ylab("Nettoeksporten i mia. kr.") +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        text = element_text(size = 12), 
+        panel.grid.minor.x = element_blank()) +
+  coord_cartesian(xlim=c(1961,2021), ylim=c(-5,195))
+
+ggsave("Udvikling i NX.png", dpi=600, width = 8, height = 4, path = "grafer")
+```
+
+Udvikling i I med Y
+```{r}
+data = data %>%
+  mutate(Igr = c(NA, exp(diff(log(Ipr_faste)))-1)*100)
+
+data2 = data[-c(1:12),] %>%
+  select(c(year, Ygr, Igr)) %>%
+  pivot_longer(cols = c(Ygr, Igr))
+
+
+ggplot(data = data2, aes(x = year, y = value, color=name)) +
+  geom_line() + 
+  geom_point(size = 0.5, color = "black") +
+  #geom_smooth(method = lm, se = F, linewidth = 0.4, fullrange = T) +
+  geom_hline(yintercept = 0, linewidth = 0.5) +
+  scale_x_continuous(limits = c(1950,2030), breaks = seq(from = 1972, to = 2022, by = 2)) +
+  scale_y_continuous(breaks = seq(from = -15, to = 20, by = 5)) +
+  xlab("År") +
+  ylab("%-ændring I og Y") +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        text = element_text(size = 12), 
+        panel.grid.minor.x = element_blank()) +
+  coord_cartesian(xlim=c(1972,2022), ylim=c(-17,22)) +
+  labs(color = "Variabel") +
+  scale_color_manual(labels = c("Investering", "BNP"), values = c("brown", "cyan3"))
+
+ggsave("Udvikling i I og Y.png", dpi=600, width = 8, height = 4, path = "grafer")
+```
+
+```{r}
+data = data %>%
+  mutate(Cgr = c(NA, exp(diff(log(c)))-1)*100)
+
+ggplot(data = data[-1, ], aes(x = year, y = Cgr)) +
+  geom_line(color = "brown") + 
+  geom_point(size = 0.8) +
+  geom_smooth(method = lm, se = F, linewidth = 0.4, fullrange = T) +
+  geom_hline(yintercept = 0, linewidth = 0.5) +
+  scale_x_continuous(limits = c(1950,2030), breaks = seq(from = 1960, to = 2022, by = 2)) +
+  scale_y_continuous(breaks = seq(from = -5, to = 10, by = 3)) +
+  xlab("År") +
+  ylab("%-ændring i forbrug") +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        text = element_text(size = 12), 
+        panel.grid.minor.x = element_blank()) +
+  coord_cartesian(xlim=c(1961,2021), ylim=c(-4,8))
+
+ggsave("Udvikling i C.png", dpi=600, width = 8, height = 4, path = "grafer")
+```
+
