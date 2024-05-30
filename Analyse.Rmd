@@ -71,6 +71,10 @@ as.numeric(dfm$coefficients[2]*mean(C_l/R_l)-dfm$coefficients[3]*mean(C_l/W_l))
 
 bptest(dfm)
 bptest(dfm1)
+
+jarque.bera.test(rstandard(dfm))
+jarque.bera.test(rstandard(dfm1))
+
 ```
 
 ```{r results='asis'}
@@ -95,6 +99,10 @@ as.numeric(dfm8$coefficients[2]*mean(I_l/R_l))
 
 bptest(dfm7)
 bptest(dfm8)
+
+jarque.bera.test(rstandard(dfm7))
+jarque.bera.test(rstandard(dfm8))
+
 ```
 
 ```{r results='asis'}
@@ -136,6 +144,13 @@ bptest(dfmP)
 bptest(dfmPx)
 bptest(dfmX)
 bptest(dfmM)
+
+
+jarque.bera.test(rstandard(dfmP))
+jarque.bera.test(rstandard(dfmPx))
+jarque.bera.test(rstandard(dfmX))
+jarque.bera.test(rstandard(dfmM))
+
 ```
 
 ```{r}
