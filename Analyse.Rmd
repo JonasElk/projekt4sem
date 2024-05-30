@@ -68,6 +68,9 @@ summary(dfm1)
 
 dfm$coefficients
 as.numeric(dfm$coefficients[2]*mean(C_l/R_l)-dfm$coefficients[3]*mean(C_l/W_l))
+
+bptest(dfm)
+bptest(dfm1)
 ```
 
 ```{r results='asis'}
@@ -83,10 +86,15 @@ summary(dfm7)
 #Anden mulighed med lagged PS
 dfm8 = dynlm(d(I_l) ~ L(ps) + d(Y_l) + d(r))
 summary(dfm8)
+dfm8_robust <- coeftest(dfm8, vcov = vcovHC(dfm8, type = "HC0"))
+screenreg(list(OLS = dfm8, OLS_robust_se = dfm8_robust), digits = 4)
 
 
 as.numeric(dfm7$coefficients[2]*mean(I_l/R_l))
 as.numeric(dfm8$coefficients[2]*mean(I_l/R_l))
+
+bptest(dfm7)
+bptest(dfm8)
 ```
 
 ```{r results='asis'}
@@ -123,6 +131,7 @@ dfmM = dynlm(d(M_l) ~ d(log(data$P/data$Pm)) + d(Y_l) + d(E_l))
 summary(dfmM)
 eMP = 0
 
+str(dfmP)
 bptest(dfmP)
 bptest(dfmPx)
 bptest(dfmX)
