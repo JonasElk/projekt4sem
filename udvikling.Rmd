@@ -113,14 +113,14 @@ ggplot(data = data2, aes(x = year, y = value, color=name)) +
   scale_x_continuous(limits = c(1950,2030), breaks = seq(from = 1972, to = 2022, by = 2)) +
   scale_y_continuous(breaks = seq(from = -15, to = 20, by = 5)) +
   xlab("År") +
-  ylab("%-ændring I og Y") +
+  ylab("%-ændring") +
   theme_light() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), 
         text = element_text(size = 12), 
         panel.grid.minor.x = element_blank()) +
   coord_cartesian(xlim=c(1972,2022), ylim=c(-17,22)) +
-  labs(color = "Variabel") 
-  #scale_color_manual(labels = c("Investering", "BNP"), values = c("brown", "cyan3"))
+  labs(color = "Variabel") +
+  scale_color_manual(labels = c("Investering", "BNP"), values = c("#F8766D", "cyan3"))
 
 ggsave("Udvikling i I og Y.png", dpi=600, width = 8, height = 4, path = "grafer")
 ```
