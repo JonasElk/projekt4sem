@@ -25,6 +25,7 @@ rm(list=ls())
 
 ```{r}
 data = read_xlsx("data/data.xlsx")
+data = data[-c(1:11),]
 ```
 
 
@@ -38,7 +39,7 @@ ggplot(data = data, aes(x = year, y = ps)) +
   scale_y_continuous(breaks = seq(from = 28, to = 42, by = 2)) +
   xlab("År") +
   ylab("Profitandel i %") +
-  coord_cartesian(xlim=c(1961,2021)) +
+  coord_cartesian(xlim=c(1972,2021)) +
   theme_light() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), 
         text = element_text(size = 12),
@@ -68,15 +69,14 @@ ggplot(data = data[-1, ], aes(x = year, y = Ygr)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), 
         text = element_text(size = 12), 
         panel.grid.minor.x = element_blank()) +
-  coord_cartesian(xlim=c(1961,2021), ylim=c(-5,10))
+  coord_cartesian(xlim=c(1973,2021), ylim=c(-5,10))
 
 ggsave("Udvikling i BNP.png", dpi=600, width = 8, height = 4, path = "grafer")
 ```
 
 Udvikling i NX
 ```{r}
-min(data[-c(1:7), ]$X-data[-c(1:7), ]$M)
-ggplot(data = data[-c(1:7), ], aes(x = year, y = X-M)) +
+ggplot(data = data, aes(x = year, y = X-M)) +
   geom_line(color = "#F8766D") + 
   geom_point(size = 0.8) +
   geom_smooth(method = lm, se = F, linewidth = 0.4, fullrange = T) +
@@ -89,8 +89,7 @@ ggplot(data = data[-c(1:7), ], aes(x = year, y = X-M)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), 
         text = element_text(size = 12), 
         panel.grid.minor.x = element_blank()) +
-  coord_cartesian(xlim=c(1961,2021), ylim=c(-5,195)) 
-  scale_color_brewer()
+  coord_cartesian(xlim=c(1972,2021), ylim=c(-5,195)) 
 
 ggsave("Udvikling i NX.png", dpi=600, width = 8, height = 4, path = "grafer")
 ```
@@ -100,7 +99,7 @@ Udvikling i I med Y
 data = data %>%
   mutate(Igr = c(NA, exp(diff(log(Ipr_faste)))-1)*100)
 
-data2 = data[-c(1:12),] %>%
+data2 = data%>%
   select(c(year, Ygr, Igr)) %>%
   pivot_longer(cols = c(Ygr, Igr))
 
@@ -134,14 +133,14 @@ ggplot(data = data[-1, ], aes(x = year, y = Cgr)) +
   geom_smooth(method = lm, se = F, linewidth = 0.4, fullrange = T) +
   geom_hline(yintercept = 0, linewidth = 0.5) +
   scale_x_continuous(limits = c(1950,2030), breaks = seq(from = 1960, to = 2022, by = 2)) +
-  scale_y_continuous(breaks = seq(from = -5, to = 10, by = 3)) +
+  scale_y_continuous(breaks = seq(from = -6, to = 10, by = 2)) +
   xlab("År") +
   ylab("%-ændring i forbrug") +
   theme_light() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), 
         text = element_text(size = 12), 
         panel.grid.minor.x = element_blank()) +
-  coord_cartesian(xlim=c(1961,2021), ylim=c(-4,8))
+  coord_cartesian(xlim=c(1973,2021), ylim=c(-4,8))
 
 ggsave("Udvikling i C.png", dpi=600, width = 8, height = 4, path = "grafer")
 ```

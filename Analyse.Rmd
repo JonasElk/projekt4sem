@@ -26,6 +26,7 @@ library(AER)
 library(sandwich)
 library(texreg)
 library(tseries)
+library(mFilter)
 options(digits = 8)
 options(scipen = 999)
 rm(list=ls())
@@ -55,6 +56,11 @@ P_l = ts(log(data$P), start = 1971, frequency = 1)
 Y_l = ts(log(data$Y), start = 1971, frequency = 1)
 Yf_l = ts(log(data$Yff), start = 1971, frequency = 1)
 r = ts(data$r, start = 1971, frequency = 1)
+
+Y_hp = hpfilter(Y_l, freq = 100)
+plot(Y_hp)
+Y_hpc = Y_hp$cycle
+Y_hpc
 ```
 
 #Forbrug - Rigtig
