@@ -31,6 +31,8 @@ data = data[-c(1:11),]
 
 Udvikling i profitandel
 ```{r}
+40.9-28.5
+  
 ggplot(data = data, aes(x = year, y = ps)) +
   geom_line(color = "#F8766D") +
   geom_point(size=0.8) +
