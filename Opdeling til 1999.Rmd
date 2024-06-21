@@ -35,6 +35,8 @@ rm(list=ls())
 ```{r}
 data = read_xlsx("data/data.xlsx")
 data = data[-c(1:11),]
+data = data[-c(29:52),]
+
 #data = data[-c(50:52),]
 ```
 
@@ -108,7 +110,6 @@ bptest(dfm8)
 
 jarque.bera.test(rstandard(dfm7))
 jarque.bera.test(rstandard(dfm8))
-
 ```
 
 ```{r results='asis'}
@@ -145,7 +146,6 @@ dfmM = dynlm(d(M_l) ~ d(log(data$P/data$Pm)) + d(Y_l) + d(E_l))
 summary(dfmM)
 eMP = 0
 
-str(dfmP)
 bptest(dfmP)
 bptest(dfmPx)
 bptest(dfmX)

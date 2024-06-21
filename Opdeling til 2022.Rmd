@@ -35,27 +35,30 @@ rm(list=ls())
 ```{r}
 data = read_xlsx("data/data.xlsx")
 data = data[-c(1:11),]
+data = data[-c(1:28),]
+#data = data[-c(30:52),]
+
 #data = data[-c(50:52),]
 ```
 
 ```{r}
-C_l = ts(log(data$c), start = 1971, frequency = 1)
-I_l = ts(log(data$Ipr_faste), start = 1971, frequency = 1)
-ps = ts(data$ps/100, start = 1971, frequency = 1)
-W_l = ts(log(data$W), start = 1971, frequency = 1)
-R_l = ts(log(data$R), start = 1971, frequency = 1)
-ulc_l = ts(log(data$ulc), start = 1971, frequency = 1)
-Pm_l = ts(log(data$Pm), start = 1971, frequency = 1)
-Px_l = ts(log(data$Px), start = 1971, frequency = 1)
-X_l = ts(log(data$X), start = 1971, frequency = 1)
-Yrw_l = ts(log(data$Yrw_dk), start = 1971, frequency = 1)
-M_l = ts(log(data$M), start = 1971, frequency = 1)
-rulc_l = ts(log(data$rulc), start = 1971, frequency = 1)
-E_l = ts(log(data$E), start = 1971, frequency = 1)
-P_l = ts(log(data$P), start = 1971, frequency = 1)
-Y_l = ts(log(data$Y), start = 1971, frequency = 1)
-Yf_l = ts(log(data$Yff), start = 1971, frequency = 1)
-r = ts(data$r, start = 1971, frequency = 1)
+C_l = ts(log(data$c), start = 1999, frequency = 1)
+I_l = ts(log(data$Ipr_faste), start = 1999, frequency = 1)
+ps = ts(data$ps/100, start = 1999, frequency = 1)
+W_l = ts(log(data$W), start = 1999, frequency = 1)
+R_l = ts(log(data$R), start = 1999, frequency = 1)
+ulc_l = ts(log(data$ulc), start = 1999, frequency = 1)
+Pm_l = ts(log(data$Pm), start = 1999, frequency = 1)
+Px_l = ts(log(data$Px), start = 1999, frequency = 1)
+X_l = ts(log(data$X), start = 1999, frequency = 1)
+Yrw_l = ts(log(data$Yrw_dk), start = 1999, frequency = 1)
+M_l = ts(log(data$M), start = 1999, frequency = 1)
+rulc_l = ts(log(data$rulc), start = 1999, frequency = 1)
+E_l = ts(log(data$E), start = 1999, frequency = 1)
+P_l = ts(log(data$P), start = 1999, frequency = 1)
+Y_l = ts(log(data$Y), start = 1999, frequency = 1)
+Yf_l = ts(log(data$Yff), start = 1999, frequency = 1)
+r = ts(data$r, start = 1999, frequency = 1)
 
 Y_hp = hpfilter(Y_l, freq = 100)
 #plot(Y_hp)
@@ -108,7 +111,6 @@ bptest(dfm8)
 
 jarque.bera.test(rstandard(dfm7))
 jarque.bera.test(rstandard(dfm8))
-
 ```
 
 ```{r results='asis'}
@@ -123,29 +125,23 @@ stargazer(dfm7, dfm8, omit.stat = c("f", "ser"))
 #Prisdeflator regression
 dfmP = dynlm(d(P_l) ~ d(ulc_l) + d(Pm_l) + d(Y_l) + d(r))
 summary(dfmP)
-dfmP_robust <- coeftest(dfmP, vcov = vcovHC(dfmP, type = "HC0"))
-screenreg(list(OLS = dfmP, OLS_robust_se = dfmP_robust), digits = 4)
 eP = as.numeric(dfmP$coefficients[2])
 
 #Eksportprisdeflator regression - ULC kun signifikant med d(Y) og/eller r som kontrolvariable
 dfmPx = dynlm(d(Px_l) ~ d(ulc_l) + d(Pm_l) + d(Y_l) + d(r))
 summary(dfmPx)
-dfmPx_robust <- coeftest(dfmPx, vcov = vcovHC(dfmPx, type = "HC0"))
-screenreg(list(OLS = dfmPx, OLS_robust_se = dfmPx_robust), digits = 4)
-
-ePX = as.numeric(dfmPx$coefficients[2])
+ePX = 0
 
 #Eksportregression
 dfmX = dynlm(d(X_l) ~ d(log(data$Px/data$Pm)) + d(Yrw_l) + d(E_l))
 summary(dfmX)
-eXP = as.numeric(dfmX$coefficients[2])
+eXP = 0
 
 #Importregression - Log(P/Pm) er ikke signifikant
 dfmM = dynlm(d(M_l) ~ d(log(data$P/data$Pm)) + d(Y_l) + d(E_l))
 summary(dfmM)
 eMP = 0
 
-str(dfmP)
 bptest(dfmP)
 bptest(dfmPx)
 bptest(dfmX)
