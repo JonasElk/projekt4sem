@@ -94,6 +94,8 @@ stargazer(dfm, omit.stat = c("f", "ser"))
 #Svar fra Mikael
 dfm7 = dynlm(d(I_l) ~ ps + d(Y_l) + d(r))
 summary(dfm7)
+dfm7_robust <- coeftest(dfm7, vcov = vcovHC(dfm7, type = "HC0"))
+screenreg(list(OLS = dfm7, OLS_robust_se = dfm7_robust), digits = 4)
 
 #Anden mulighed med lagged PS
 dfm8 = dynlm(d(I_l) ~ L(ps) + d(Y_l) + d(r))
